@@ -229,7 +229,7 @@ export default function TimetablePage() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 pb-32 sm:pb-6">
           {/* Add Entry Form */}
           {showAddForm && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
