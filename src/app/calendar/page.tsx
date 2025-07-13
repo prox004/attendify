@@ -6,9 +6,9 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import Navigation from '@/components/Navigation';
 import { Toaster, toast } from 'react-hot-toast';
-import { 
-  CalendarDaysIcon, 
-  ClockIcon, 
+import {
+  CalendarDaysIcon,
+  ClockIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   XMarkIcon,
@@ -123,14 +123,14 @@ export default function CalendarPage() {
   const getAttendanceStatusForDate = (date: Date) => {
     const attendance = getAttendanceForDate(date);
     const timetable = getTimetableForDate(date);
-    
+
     if (timetable.length === 0) return null;
     if (attendance.length === 0) return 'unmarked';
-    
+
     const hasPresent = attendance.some(a => a.status === 'present');
     const hasAbsent = attendance.some(a => a.status === 'absent');
     const allOff = attendance.every(a => a.status === 'off');
-    
+
     if (allOff) return 'off';
     if (hasAbsent) return 'partial';
     if (hasPresent) return 'present';
@@ -151,23 +151,23 @@ export default function CalendarPage() {
       const dateString = getDateString(date);
       const timetable = getTimetableForDate(date);
       const attendance = getAttendanceForDate(date);
-      
+
       if (timetable.length === 0) {
         toast.error('No classes scheduled for this day');
         return;
       }
 
       const subjectIds = timetable.map(t => t.subjectId);
-      
+
       // Update existing attendance
       for (const entry of attendance) {
         await updateAttendance(user?.uid || null, entry.id, { status });
       }
-      
+
       // Add attendance for subjects not yet marked
       const markedSubjects = attendance.map(a => a.subjectId);
       const unmarkedSubjects = subjectIds.filter(id => !markedSubjects.includes(id));
-      
+
       for (const subjectId of unmarkedSubjects) {
         const subject = subjects.find(s => s.id === subjectId);
         if (subject) {
@@ -176,20 +176,20 @@ export default function CalendarPage() {
             date: dateString,
             status
           });
-          
+
           newEntry.subjectName = subject.name;
           newEntry.subjectCode = subject.code;
           setAttendanceEntries(prev => [...prev, newEntry]);
         }
       }
-      
+
       // Refresh attendance data
       const updatedAttendance = await getAttendance(user?.uid || null);
       setAttendanceEntries(updatedAttendance);
-      
+
       // Refresh global attendance data
       refreshData();
-      
+
       toast.success(`All classes for ${date.toLocaleDateString()} marked as ${ATTENDANCE_LABELS[status].toLowerCase()}`);
     } catch (error) {
       console.error('Error updating bulk attendance:', error);
@@ -199,21 +199,21 @@ export default function CalendarPage() {
 
   const handleBulkAttendance = async (status: AttendanceStatus) => {
     if (!selectedDate) return;
-    
+
     try {
       const dateString = getDateString(selectedDate);
       const subjectIds = dayTimetable.map(t => t.subjectId);
-      
+
       // Update existing attendance for this date
       const existingAttendance = dayAttendance;
       for (const entry of existingAttendance) {
         await updateAttendance(user?.uid || null, entry.id, { status });
       }
-      
+
       // Add attendance for subjects not yet marked
       const markedSubjects = existingAttendance.map(a => a.subjectId);
       const unmarkedSubjects = subjectIds.filter(id => !markedSubjects.includes(id));
-      
+
       for (const subjectId of unmarkedSubjects) {
         const subject = subjects.find(s => s.id === subjectId);
         if (subject) {
@@ -222,20 +222,20 @@ export default function CalendarPage() {
             date: dateString,
             status
           });
-          
+
           newEntry.subjectName = subject.name;
           newEntry.subjectCode = subject.code;
           setAttendanceEntries(prev => [...prev, newEntry]);
         }
       }
-      
+
       // Update local state
       const updatedAttendance = await getAttendance(user?.uid || null, dateString);
       setDayAttendance(updatedAttendance);
-      
+
       // Refresh global attendance data
       refreshData();
-      
+
       toast.success(`All classes marked as ${ATTENDANCE_LABELS[status].toLowerCase()}`);
     } catch (error) {
       console.error('Error updating bulk attendance:', error);
@@ -245,26 +245,26 @@ export default function CalendarPage() {
 
   const handleIndividualAttendance = async (subjectId: string, status: AttendanceStatus, date?: Date) => {
     const targetDate = date || selectedDate || new Date();
-    
+
     try {
       const dateString = getDateString(targetDate);
       const targetAttendance = date ? getAttendanceForDate(date) : dayAttendance;
       const existingEntry = targetAttendance.find(a => a.subjectId === subjectId);
-      
+
       if (existingEntry) {
         await updateAttendance(user?.uid || null, existingEntry.id, { status });
-        
+
         if (date) {
           // Update global attendance entries
-          setAttendanceEntries(prev => prev.map(a => 
+          setAttendanceEntries(prev => prev.map(a =>
             a.id === existingEntry.id ? { ...a, status } : a
           ));
         } else {
           // Update both day and global attendance
-          setDayAttendance(prev => prev.map(a => 
+          setDayAttendance(prev => prev.map(a =>
             a.id === existingEntry.id ? { ...a, status } : a
           ));
-          setAttendanceEntries(prev => prev.map(a => 
+          setAttendanceEntries(prev => prev.map(a =>
             a.id === existingEntry.id ? { ...a, status } : a
           ));
         }
@@ -276,10 +276,10 @@ export default function CalendarPage() {
             date: dateString,
             status
           });
-          
+
           newEntry.subjectName = subject.name;
           newEntry.subjectCode = subject.code;
-          
+
           if (date) {
             setAttendanceEntries(prev => [...prev, newEntry]);
           } else {
@@ -288,10 +288,10 @@ export default function CalendarPage() {
           }
         }
       }
-      
+
       // Refresh global attendance data
       refreshData();
-      
+
       toast.success('Attendance updated');
     } catch (error) {
       console.error('Error updating attendance:', error);
@@ -317,15 +317,15 @@ export default function CalendarPage() {
       const hasEvents = hasEventsOnDate(date);
       const attendanceStatus = getAttendanceStatusForDate(date);
       const isToday = date.toDateString() === new Date().toDateString();
-      
+
       let dayClasses = 'p-3 text-center text-sm rounded-lg cursor-pointer transition-all duration-200 relative min-h-[3rem] flex flex-col items-center justify-center ';
-      
+
       if (isToday) {
         dayClasses += 'bg-indigo-600 text-white font-semibold ';
       } else {
         dayClasses += 'hover:bg-gray-100 ';
       }
-      
+
       days.push(
         <div
           key={day}
@@ -337,11 +337,10 @@ export default function CalendarPage() {
             <div className="flex justify-center space-x-1">
               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
               {attendanceStatus && attendanceStatus !== 'unmarked' && (
-                <div className={`w-1.5 h-1.5 rounded-full ${
-                  attendanceStatus === 'present' ? 'bg-green-500' :
-                  attendanceStatus === 'partial' ? 'bg-yellow-500' :
-                  attendanceStatus === 'off' ? 'bg-gray-500' : 'bg-red-500'
-                }`}></div>
+                <div className={`w-1.5 h-1.5 rounded-full ${attendanceStatus === 'present' ? 'bg-green-500' :
+                    attendanceStatus === 'partial' ? 'bg-yellow-500' :
+                      attendanceStatus === 'off' ? 'bg-gray-500' : 'bg-red-500'
+                  }`}></div>
               )}
             </div>
           )}
@@ -376,27 +375,33 @@ export default function CalendarPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Toaster position="top-right" />
-      
+
       <div className="hidden md:flex md:w-64 md:flex-col">
         <Navigation />
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
+        <header className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+            {/* Left: Title and Subtitle */}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
-              <p className="text-gray-600">View your monthly schedule and mark attendance</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Calendar</h1>
+              <p className="text-sm sm:text-base text-gray-600">
+                View your monthly schedule and mark attendance
+              </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+
+            {/* Right: Month Controls */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => navigateMonth('prev')}
                   className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
                 >
                   <ChevronLeftIcon className="w-5 h-5" />
                 </button>
-                <span className="text-lg font-semibold text-gray-900 min-w-[8rem] text-center">
+                <span className="text-base sm:text-lg font-semibold text-gray-900 min-w-[8rem] text-center">
                   {months[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </span>
                 <button
@@ -406,21 +411,18 @@ export default function CalendarPage() {
                   <ChevronRightIcon className="w-5 h-5" />
                 </button>
               </div>
-              <button
-                onClick={() => setCurrentDate(new Date())}
-                className="px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-              >
-                Today
-              </button>
-              <CalendarDaysIcon className="w-8 h-8 text-indigo-600" />
+
+              {/* Icon */}
+
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+
+        <main className="flex-1 overflow-y-auto p-3 pb-32 sm:pb-6">
           <div className="flex flex-col lg:flex-row h-full">
             {/* Main Calendar Area */}
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-3">
               {/* Legend */}
               <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Legend</h3>
@@ -489,7 +491,7 @@ export default function CalendarPage() {
                 {(() => {
                   const todayTimetable = getTimetableForDate(new Date());
                   const todayAttendance = getAttendanceForDate(new Date());
-                  
+
                   return todayTimetable.length === 0 ? (
                     <div className="text-center py-8">
                       <CalendarDaysIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -500,7 +502,7 @@ export default function CalendarPage() {
                       {todayTimetable.map((timetableEntry) => {
                         const attendance = todayAttendance.find(a => a.subjectId === timetableEntry.subjectId);
                         const currentStatus = attendance?.status;
-                        
+
                         return (
                           <div key={timetableEntry.id} className="border border-gray-200 rounded-lg p-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
@@ -524,7 +526,7 @@ export default function CalendarPage() {
                             {/* Status Display */}
                             {currentStatus && (
                               <div className="mb-3">
-                                <span 
+                                <span
                                   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${ATTENDANCE_COLORS[currentStatus]}`}
                                 >
                                   {ATTENDANCE_LABELS[currentStatus]}
@@ -536,31 +538,28 @@ export default function CalendarPage() {
                             <div className="flex space-x-1">
                               <button
                                 onClick={() => handleIndividualAttendance(timetableEntry.subjectId, 'present', new Date())}
-                                className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-colors ${
-                                  currentStatus === 'present' 
-                                    ? 'bg-green-500 text-white' 
+                                className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-colors ${currentStatus === 'present'
+                                    ? 'bg-green-500 text-white'
                                     : 'bg-green-100 hover:bg-green-200 text-green-700'
-                                }`}
+                                  }`}
                               >
                                 P
                               </button>
                               <button
                                 onClick={() => handleIndividualAttendance(timetableEntry.subjectId, 'absent', new Date())}
-                                className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-colors ${
-                                  currentStatus === 'absent' 
-                                    ? 'bg-red-500 text-white' 
+                                className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-colors ${currentStatus === 'absent'
+                                    ? 'bg-red-500 text-white'
                                     : 'bg-red-100 hover:bg-red-200 text-red-700'
-                                }`}
+                                  }`}
                               >
                                 A
                               </button>
                               <button
                                 onClick={() => handleIndividualAttendance(timetableEntry.subjectId, 'off', new Date())}
-                                className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-colors ${
-                                  currentStatus === 'off' 
-                                    ? 'bg-gray-500 text-white' 
+                                className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-colors ${currentStatus === 'off'
+                                    ? 'bg-gray-500 text-white'
                                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                                }`}
+                                  }`}
                               >
                                 O
                               </button>
@@ -584,11 +583,11 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {selectedDate.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  {selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                   })}
                 </h2>
                 <p className="text-gray-600">
@@ -644,7 +643,7 @@ export default function CalendarPage() {
                     {dayTimetable.map((timetableEntry) => {
                       const attendance = dayAttendance.find(a => a.subjectId === timetableEntry.subjectId);
                       const currentStatus = attendance?.status;
-                      
+
                       return (
                         <div key={timetableEntry.id} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-3">
@@ -670,39 +669,36 @@ export default function CalendarPage() {
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => handleIndividualAttendance(timetableEntry.subjectId, 'present')}
-                                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
-                                  currentStatus === 'present' 
-                                    ? 'bg-green-600 text-white' 
+                                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${currentStatus === 'present'
+                                    ? 'bg-green-600 text-white'
                                     : 'bg-green-100 hover:bg-green-200 text-green-700'
-                                }`}
+                                  }`}
                               >
                                 <CheckCircleIcon className="w-3 h-3" />
                                 <span>Present</span>
                               </button>
                               <button
                                 onClick={() => handleIndividualAttendance(timetableEntry.subjectId, 'absent')}
-                                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
-                                  currentStatus === 'absent' 
-                                    ? 'bg-red-600 text-white' 
+                                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${currentStatus === 'absent'
+                                    ? 'bg-red-600 text-white'
                                     : 'bg-red-100 hover:bg-red-200 text-red-700'
-                                }`}
+                                  }`}
                               >
                                 <XCircleIcon className="w-3 h-3" />
                                 <span>Absent</span>
                               </button>
                               <button
                                 onClick={() => handleIndividualAttendance(timetableEntry.subjectId, 'off')}
-                                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
-                                  currentStatus === 'off' 
-                                    ? 'bg-gray-600 text-white' 
+                                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${currentStatus === 'off'
+                                    ? 'bg-gray-600 text-white'
                                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                                }`}
+                                  }`}
                               >
                                 <MinusCircleIcon className="w-3 h-3" />
                                 <span>Off</span>
                               </button>
                             </div>
-                            
+
                             {currentStatus && (
                               <div className={`px-2 py-1 rounded-full text-xs font-medium border ${ATTENDANCE_COLORS[currentStatus]}`}>
                                 {ATTENDANCE_LABELS[currentStatus]}

@@ -362,7 +362,7 @@ export default function SubjectsPage() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 pb-32 sm:pb-6">
           {/* Add Subject Accordion */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
             <button
