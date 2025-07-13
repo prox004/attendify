@@ -55,7 +55,7 @@ export default function SettingsPage() {
           name: 'Profile',
           description: 'Manage your account information',
           icon: UserCircleIcon,
-          action: () => console.log('Profile settings')
+          action: () => router.push('/profile')
         },
         {
           name: 'Notifications',
@@ -113,52 +113,55 @@ export default function SettingsPage() {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-              <p className="text-gray-600">Manage your preferences and account</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Settings</h1>
+              <p className="text-gray-600 text-sm sm:text-base">Manage your preferences and account</p>
             </div>
-            <Cog6ToothIcon className="w-8 h-8 text-indigo-600" />
+            <Cog6ToothIcon className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" />
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 pb-32 sm:pb-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20 sm:pb-6">
           {/* User Profile Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <div className="flex items-center space-x-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
               {user.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt="Profile"
-                  className="w-16 h-16 rounded-full"
+                  className="w-16 h-16 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
                   <UserCircleIcon className="w-10 h-10 text-indigo-600" />
                 </div>
               )}
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">
+              <div className="flex-1 text-center sm:text-left">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                   {user.displayName || 'User'}
                 </h2>
-                <p className="text-gray-600">{user.email}</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-gray-600 text-sm sm:text-base">{user.email}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
                   Joined {new Date(user.metadata.creationTime || '').toLocaleDateString()}
                 </p>
               </div>
-              <button className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg transition-all duration-200">
+              <button 
+                onClick={() => router.push('/profile')}
+                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 text-sm"
+              >
                 Edit Profile
               </button>
             </div>
           </div>
 
           {/* Settings Groups */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {settingsGroups.map((group, groupIndex) => (
               <div key={groupIndex} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">{group.title}</h3>
+                <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">{group.title}</h3>
                 </div>
                 
                 <div className="divide-y divide-gray-200">
@@ -166,18 +169,18 @@ export default function SettingsPage() {
                     <button
                       key={settingIndex}
                       onClick={setting.action}
-                      className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-all duration-200 text-left"
+                      className="w-full flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 transition-all duration-200 text-left"
                     >
                       <div className="flex items-center space-x-3">
                         <div className="p-2 bg-gray-100 rounded-lg">
-                          <setting.icon className="w-5 h-5 text-gray-600" />
+                          <setting.icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{setting.name}</div>
-                          <div className="text-sm text-gray-600">{setting.description}</div>
+                          <div className="font-medium text-gray-900 text-sm sm:text-base">{setting.name}</div>
+                          <div className="text-xs sm:text-sm text-gray-600">{setting.description}</div>
                         </div>
                       </div>
-                      <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+                      <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     </button>
                   ))}
                 </div>
@@ -186,9 +189,9 @@ export default function SettingsPage() {
           </div>
 
           {/* App Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">App Information</h3>
-            <div className="space-y-3 text-sm">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mt-6 sm:mt-8">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">App Information</h3>
+            <div className="space-y-3 text-xs sm:text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Version</span>
                 <span className="text-gray-900">1.0.0</span>
@@ -205,13 +208,13 @@ export default function SettingsPage() {
           </div>
 
           {/* Sign Out */}
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <button
               onClick={handleSignOut}
               className="w-full bg-red-50 hover:bg-red-100 text-red-700 font-medium py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all duration-200"
             >
-              <ArrowRightOnRectangleIcon className="w-5 h-5" />
-              <span>Sign Out</span>
+              <ArrowRightOnRectangleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="text-sm sm:text-base">Sign Out</span>
             </button>
           </div>
         </main>

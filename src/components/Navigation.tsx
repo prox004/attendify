@@ -114,7 +114,14 @@ export default function Navigation({ className = '', isMobile = false }: Navigat
         {/* User Section */}
         {user && (
           <div className="border-t border-gray-200 p-4">
-            <div className="flex items-center space-x-3 mb-3">
+            <Link
+              href="/profile"
+              className={`flex items-center space-x-3 mb-3 p-2 rounded-lg transition-all duration-200 ${
+                pathname === '/profile'
+                  ? 'bg-indigo-50 text-indigo-600'
+                  : 'hover:bg-gray-50'
+              }`}
+            >
               {user.photoURL ? (
                 <img
                   src={user.photoURL}
@@ -129,10 +136,10 @@ export default function Navigation({ className = '', isMobile = false }: Navigat
                   {user.displayName || 'User'}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {user.email}
+                  View Profile
                 </p>
               </div>
-            </div>
+            </Link>
             <button
               onClick={handleSignOut}
               className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200"
